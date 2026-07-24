@@ -1,0 +1,130 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+galaxies = [
+    "LSBCF563-1",
+    "DDO185",
+    "DDO189",
+    "DDO47",
+    "NGC1560",
+    "NGC2366",
+    "NGC3274",
+    "NGC4395",
+    "NGC4455",
+    "UGC1230",
+    "UGC3371",
+    "UGC4173",
+    "UGC4325",
+    "UGC5005",
+    "UGC5750"
+]
+
+reduced_chi2 = [
+    0.48,
+    np.nan,   # No value
+    0.03,
+    0.15,
+    5.05,
+    0.97,
+    0.46,
+    0.64,
+    0.22,
+    0.25,
+    0.01,
+    0.05,
+    0.01,
+    0.03,
+    0.39
+]
+
+
+
+galaxies_plot = []
+chi_plot = []
+
+for g, c in zip(galaxies, reduced_chi2):
+    if not np.isnan(c):
+        galaxies_plot.append(g)
+        chi_plot.append(c)
+
+
+
+order = np.argsort(chi_plot)
+
+galaxies_plot = np.array(galaxies_plot)[order]
+chi_plot = np.array(chi_plot)[order]
+
+
+
+colors = []
+
+for c in chi_plot:
+
+    if c < 1:
+        colors.append("forestgreen")
+
+    elif c < 2:
+        colors.append("gold")
+
+    else:
+        colors.append("crimson")
+
+
+
+plt.style.use("default")
+
+plt.rcParams.update({
+    "font.family":"serif",
+    "mathtext.fontset":"dejavuserif",
+    "font.size":12,
+    "axes.labelsize":15,
+    "axes.linewidth":1.2
+})
+
+fig, ax = plt.subplots(figsize=(8,6))
+
+bars = ax.barh(
+    galaxies_plot,
+    chi_plot,
+    color=colors,
+    edgecolor='black'
+)
+
+# Value labels
+
+for bar in bars:
+
+    width = bar.get_width()
+
+    ax.text(
+        width + 0.05,
+        bar.get_y() + bar.get_height()/2,
+        f"{width:.2f}",
+        va='center',
+        fontsize=10
+    )
+
+
+ax.axvline(
+    1,
+    color='blue',
+    linestyle='--',
+    linewidth=2,
+    label=r'$\chi_\nu^2 = 1$'
+)
+
+ax.set_xlabel(r"Reduced $\chi^2$")
+ax.set_ylabel("Galaxy")
+
+ax.set_title("Reduced $\chi^2$ of Burkert Halo Fits")
+
+ax.legend()
+
+plt.tight_layout()
+
+plt.savefig("Reduced_Chi2_Burkert.png", dpi=500)
+plt.savefig("Reduced_Chi2_Burkert.pdf", dpi=500)
+
+plt.show()
