@@ -1,0 +1,121 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+galaxies = np.array([
+    "LSBCF563-1","DDO185","DDO189","DDO47","NGC1560",
+    "NGC2366","NGC3274","NGC4395","NGC4455","UGC1230",
+    "UGC3371","UGC4173","UGC4325","UGC5005","UGC5750"
+])
+
+rho0 = np.array([
+    5.72e7,1.77e7,8.29e7,4.49e7,3.51e7,
+    1.47e8,4.64e8,1.42e8,3.38e7,6.76e7,
+    1.76e7,4.60e6,9.11e7,8.84e6,3.20e6
+])
+
+rc = np.array([
+    3.99,100.0,1.88,3.71,3.39,
+    1.10,1.05,1.71,3.17,3.65,
+    5.89,6.03,4.78,8.98,100.0
+])
+
+red_chi2 = np.array([
+    0.48,np.nan,0.03,0.15,5.05,
+    0.97,0.46,0.64,0.22,0.25,
+    0.01,0.05,0.01,0.03,0.39
+])
+
+
+
+mask = (rc < 50) & (~np.isnan(red_chi2))
+
+galaxies = galaxies[mask]
+rho0 = rho0[mask]
+rc = rc[mask]
+red_chi2 = red_chi2[mask]
+
+
+
+bubble_size = 600*(red_chi2 + 0.15)
+
+
+
+plt.style.use("default")
+
+plt.rcParams.update({
+    "font.family":"serif",
+    "mathtext.fontset":"dejavuserif",
+    "font.size":12,
+    "axes.labelsize":15,
+    "axes.linewidth":1.2,
+    "xtick.direction":"in",
+    "ytick.direction":"in",
+    "xtick.top":True,
+    "ytick.right":True
+})
+
+fig, ax = plt.subplots(figsize=(8,6))
+
+
+scatter = ax.scatter(
+    rc,
+    rho0,
+    s=bubble_size,
+    c=red_chi2,
+    cmap="viridis_r",
+    edgecolor="black",
+    linewidth=0.8,
+    alpha=0.8
+)
+
+
+for x, y, name in zip(rc, rho0, galaxies):
+
+    ax.annotate(
+        name,
+        (x, y),
+        xytext=(5,5),
+        textcoords="offset points",
+        fontsize=8
+    )
+
+
+ax.set_xscale("log")
+ax.set_yscale("log")
+
+ax.set_xlabel(r"Core Radius, $r_c$ (kpc)")
+ax.set_ylabel(r"Central Density, $\rho_0$ ($M_\odot\,\mathrm{kpc}^{-3}$)")
+
+ax.set_title("Burkert Halo Parameters with Reduced $\chi^2$")
+
+
+
+cbar = plt.colorbar(scatter)
+cbar.set_label(r"Reduced $\chi^2$")
+
+
+ax.text(
+    0.03,
+    0.05,
+    "Bubble Size\n∝ Reduced $\chi^2$",
+    transform=ax.transAxes,
+    fontsize=12,
+    va="bottom",
+    ha="left",
+    bbox=dict(
+        facecolor="white",
+        edgecolor="black",
+        alpha=0.9
+    )
+)
+
+ax.grid(True, which='both', linestyle='--', alpha=0.35)
+
+plt.tight_layout()
+
+plt.savefig("Burkert_Bubble_Plot.png", dpi=500)
+plt.savefig("Burkert_Bubble_Plot.pdf", dpi=500)
+
+plt.show()
