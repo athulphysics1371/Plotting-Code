@@ -1,0 +1,110 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+galaxies = np.array([
+    "LSBCF563-1","DDO185","DDO189","DDO47","NGC1560",
+    "NGC2366","NGC3274","NGC4395","NGC4455","UGC1230",
+    "UGC3371","UGC4173","UGC4325","UGC5005","UGC5750"
+])
+
+rho0 = np.array([
+    5.72e7,1.77e7,8.29e7,4.49e7,3.51e7,
+    1.47e8,4.64e8,1.42e8,3.38e7,6.76e7,
+    1.76e7,4.60e6,9.11e7,8.84e6,3.20e6
+])
+
+rho_err = np.array([
+    2.19e7,2.49e6,3.57e7,2.48e7,1.38e6,
+    2.77e7,6.19e7,1.72e7,5.55e6,2.02e7,
+    5.42e6,2.43e6,1.81e7,2.58e6,2.99e6
+])
+
+rc = np.array([
+    3.99,100.0,1.88,3.71,3.39,
+    1.10,1.05,1.71,3.17,3.65,
+    5.89,6.03,4.78,8.98,100.0
+])
+
+rc_err = np.array([
+    0.78,109.89,0.43,2.79,0.09,
+    0.12,0.07,0.12,0.43,0.57,
+    1.38,2.42,1.55,1.71,2354.42
+])
+
+
+
+mask = rc < 50
+
+rc = rc[mask]
+rc_err = rc_err[mask]
+
+rho0 = rho0[mask]
+rho_err = rho_err[mask]
+
+galaxies = galaxies[mask]
+
+# ==========================================================
+# Plot Style
+# ==========================================================
+
+plt.style.use("default")
+
+plt.rcParams.update({
+    "font.family":"serif",
+    "mathtext.fontset":"dejavuserif",
+    "font.size":12,
+    "axes.labelsize":15,
+    "axes.linewidth":1.2,
+    "xtick.direction":"in",
+    "ytick.direction":"in",
+    "xtick.top":True,
+    "ytick.right":True
+})
+
+fig, ax = plt.subplots(figsize=(7.5,6))
+
+
+
+ax.errorbar(
+    rc,
+    rho0,
+    xerr=rc_err,
+    yerr=rho_err,
+    fmt='o',
+    color='royalblue',
+    ecolor='gray',
+    capsize=3,
+    markersize=6
+)
+
+
+for x, y, g in zip(rc, rho0, galaxies):
+
+    ax.annotate(
+        g,
+        (x, y),
+        xytext=(5,5),
+        textcoords="offset points",
+        fontsize=7
+    )
+
+
+
+ax.set_xscale("log")
+ax.set_yscale("log")
+
+ax.set_xlabel(r"Core Radius, $r_c$ (kpc)")
+ax.set_ylabel(r"Central Density, $\rho_0$ ($M_\odot\,\mathrm{kpc}^{-3}$)")
+
+ax.set_title("Central Density vs Core Radius (Burkert Halo)")
+
+ax.grid(True, which="both", linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+
+plt.savefig("rho0_vs_rc.png", dpi=500)
+plt.savefig("rho0_vs_rc.pdf", dpi=500)
+
+plt.show()
